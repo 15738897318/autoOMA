@@ -2,3 +2,14 @@ Dataset/
 IdResults.mat
 oldfdd.m
 data/
+alamosa_data/mshape_test.mat
+alamosa_data/testdata.mat
+alamosa_data/vibdata.mat
+alamosa_data/vibdata_filtered.mat
+beam_data/Data_Damaged.mat
+beam_data/Data_Pristine.mat
+beam_data/Grid_T-Beam.900-1.inp
+beam_data/SHCM-Assignment-03.pdf
+beam_data/SHCM-Assignment-04.pdf
+beam_data/beam_illustration.png
+beam_data/grid.csv

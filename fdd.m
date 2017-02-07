@@ -20,17 +20,8 @@ function [mfreq,mshape] = fdd(input,window,overlap,nfft,fs)
 fres = linspace(0,fs,nfft);
 fres = fres(1:(nfft/2+1));
 
-%remove the dc component
-for i=1:size(input,2)
-   input(:,i) = input(:,i) - mean(input(:,i)); 
-end
-
-% Obtain the cpsd matrix
-for i=1:size(input,2)
-  for j=1:size(input,2)
-    psd(i,j,:) = cpsd(input(:,i),input(:,j),window,overlap,nfft,fs);
-  end
-end
+%obtain the cross-psd matrix
+psd = cpsdm(input,window,overlap,nfft,fs);
 
 % Calculate the SVD of cpsd matrix for each frequency
 nsingular = 3; %number of singular values to be saved
@@ -49,5 +40,5 @@ hold on
 plot(fres, mag2db(svalue(:,2)));
 plot(fres, mag2db(svalue(:,3)));
 
-mfreq = svalue;
-mshape = svector;
+mfreq = svalue(:,1);
+mshape = svector(:,:,1);
