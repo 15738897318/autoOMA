@@ -1,4 +1,4 @@
-function [mfreq,mshape] = cfdd(input,window,overlap,nfft,fs)
+function [fres,mfreq,mshape] = cfdd(input,window,overlap,nfft,fs)
 
 % calculate the frequency resolution range
 fres = linspace(0,fs,nfft);
@@ -32,5 +32,5 @@ hold on
 plot(fres, mag2db(svalue(:,2)));
 plot(fres, mag2db(svalue(:,3)));
 
-mfreq = svalue(:,1);
-mshape = svector(:,:,1);
+mfreq = svalue;
+mshape = svector;
