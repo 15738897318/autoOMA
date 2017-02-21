@@ -5,6 +5,7 @@ alamosa_data/
 beam_data/
 dataset/
 omatools/
+other_scripts/
 
 IdResults.mat
 oldfdd.m
