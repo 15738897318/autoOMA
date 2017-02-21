@@ -29,7 +29,7 @@ end
 
 %calculate the frequency points
 fpoints = linspace(0,fs,nfft);
-fpoints = f(1:(nfft/2+1));
+fpoints = fpoints(1:(nfft/2+1));
 
 for i=1:size(input1,2)
   %remove the dc component

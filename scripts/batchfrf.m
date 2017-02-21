@@ -25,12 +25,12 @@ if ~isequal(size(input),size(output))
   error('Input and output does NOT have same size')
 end
 
-%calculate input and input autopsd
+%calculate input-output crosspd and input autopsd
 [fpoints, inpsd] = batchpsd(input,input, window, overlap, nfft, fs);
-[fpoints, outpsd] = batchpsd(output, output, window, overlap, nfft, fs);
+[fpoints, crosspsd] = batchpsd(input, output, window, overlap, nfft, fs);
 
 %calculate the frf
-frf = outpsd./inpsd;
+frf = crosspsd./inpsd;
 
 %calculate the coherence
 coh = mscohere(output,input, window, overlap, nfft, fs);

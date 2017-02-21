@@ -24,7 +24,7 @@ fpoints = fpoints(1:(nfft/2+1));
 psd = cpsdm(input,window,overlap,nfft,fs);
 
 % Calculate the SVD of cpsd matrix for each frequency
-nsingular = 3; %number of singular values to be saved
+nsingular = 8; %number of singular values to be saved
 for i=1:size(psd,3)
   [u,s,~] = svd(psd(:,:,i));
   for j=1:nsingular
@@ -35,7 +35,7 @@ end
 
 % Plot the singular values of psd matrix
 figure
-plot(fpoints, mag2db(svalue(:,1)));
+plot(fpoints, mag2db(abs(svalue(:,1))));
 hold on
-plot(fpoints, mag2db(svalue(:,2)));
-plot(fpoints, mag2db(svalue(:,3)));
+plot(fpoints, mag2db(abs(svalue(:,2))));
+plot(fpoints, mag2db(abs(svalue(:,3))));
