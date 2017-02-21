@@ -1,6 +1,6 @@
-function [mfreq,mshape] = fdd(input,window,overlap,nfft,fs)
+function [fpoints, svalue,svector] = fdd(input,window,overlap,nfft,fs)
 
-% Freqyency Domain Decomposition (FDD) algorithm
+% Frequency Domain Decomposition (FDD) algorithm
 % Author: Alkindi R. Dzulqarnain, Master Student at UTwente
 % Last update: 23/01/2017
 % 
@@ -17,8 +17,8 @@ function [mfreq,mshape] = fdd(input,window,overlap,nfft,fs)
 
 
 % calculate the frequency resolution range
-fres = linspace(0,fs,nfft);
-fres = fres(1:(nfft/2+1));
+fpoints = linspace(0,fs,nfft);
+fpoints = fpoints(1:(nfft/2+1));
 
 %obtain the cross-psd matrix
 psd = cpsdm(input,window,overlap,nfft,fs);
@@ -35,10 +35,7 @@ end
 
 % Plot the singular values of psd matrix
 figure
-plot(fres, mag2db(svalue(:,1)));
+plot(fpoints, mag2db(svalue(:,1)));
 hold on
-plot(fres, mag2db(svalue(:,2)));
-plot(fres, mag2db(svalue(:,3)));
-
-mfreq = svalue(:,1);
-mshape = svector(:,:,1);
+plot(fpoints, mag2db(svalue(:,2)));
+plot(fpoints, mag2db(svalue(:,3)));
