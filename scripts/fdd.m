@@ -1,4 +1,4 @@
-function [fpoints, svalue,svector] = fdd(input,window,overlap,nfft,fs)
+function [fpoints, svalue, svector] = fdd(input,window,overlap,nfft,fs)
 
 % Frequency Domain Decomposition (FDD) algorithm
 % Author: Alkindi R. Dzulqarnain, Master Student at UTwente
@@ -21,10 +21,14 @@ fpoints = linspace(0,fs,nfft);
 fpoints = fpoints(1:(nfft/2+1));
 
 %obtain the cross-psd matrix
+disp('Calculating cross-psd matrix -----');
+tic
 psd = cpsdm(input,window,overlap,nfft,fs);
-
+toc
 % Calculate the SVD of cpsd matrix for each frequency
-nsingular = 8; %number of singular values to be saved
+nsingular = 6; %number of singular values to be saved
+disp('Calculating SVD -----');
+tic
 for i=1:size(psd,3)
   [u,s,~] = svd(psd(:,:,i));
   for j=1:nsingular
@@ -32,10 +36,14 @@ for i=1:size(psd,3)
     svector(:,i,j) = u(:,j);
   end
 end
+toc
 
 % Plot the singular values of psd matrix
+disp('Plotting SVD -----');
+tic
 figure
 plot(fpoints, mag2db(abs(svalue(:,1))));
 hold on
 plot(fpoints, mag2db(abs(svalue(:,2))));
 plot(fpoints, mag2db(abs(svalue(:,3))));
+toc
