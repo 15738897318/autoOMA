@@ -284,7 +284,16 @@ function fmin_Callback(hObject, eventdata, handles)
 
 %update the fmin value
 val = str2num(get(hObject,'String'));
+fpoints = getappdata(0,'fpoints');
+
+if (val < fpoints(1))
+    val = fpoints(1);
+elseif (val > fpoints(end))
+    val = fpoints(end - 1);
+end
+
 setappdata(0,'fmin',val);
+set(handles.fmin, 'String', num2str(val,'%.2f'));
 
 
 % --- Executes during object creation, after setting all properties.
@@ -311,7 +320,16 @@ function fmax_Callback(hObject, eventdata, handles)
 
 %update the fmax value
 val = str2num(get(hObject,'String'));
+fpoints = getappdata(0,'fpoints');
+
+if (val < fpoints(1))
+    val = fpoints(2);
+elseif (val > fpoints(end))
+    val = fpoints(end);
+end
+
 setappdata(0,'fmax',val);
+set(handles.fmax, 'String', num2str(val, '%.2f'));
 
 % --- Executes during object creation, after setting all properties.
 function fmax_CreateFcn(hObject, eventdata, handles)
