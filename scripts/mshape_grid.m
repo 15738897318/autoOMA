@@ -45,9 +45,9 @@ grid = [];
 temp_gridsize = size(temp_grid);
 
 %curve fitted grid in second dimension
-for i=1:temp_gridsize(1);
+for i=1:temp_gridsize(1)
   old_gridpoint = 1:temp_gridsize(2);
-  new_gridpoint = 1:res:temp_gridsize(2)
+  new_gridpoint = 1:res:temp_gridsize(2);
 
   %curve fitting into new grid points
   grid(i,:) = spline(old_gridpoint, temp_grid(i,:),new_gridpoint);

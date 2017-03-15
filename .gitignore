@@ -12,3 +12,17 @@ oldfdd.m
 beamtest.mat
 
 testdata\.mat
+
+*.PNG
+
+beam_modeshape/mode_sum\.xlsx
+
+result_tbeampristine\.mat
+
+peak_comparison\.xlsx
+
+beam_modeshape/~\$mode_sum\.xlsx
+
+tbeam_experiment2\.mat
+
+~\$peak_comparison\.xlsx

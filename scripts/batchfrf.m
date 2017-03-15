@@ -28,9 +28,11 @@ end
 %calculate input-output crosspd and input autopsd
 [fpoints, inpsd] = batchpsd(input,input, window, overlap, nfft, fs);
 [fpoints, crosspsd] = batchpsd(input, output, window, overlap, nfft, fs);
+% [fpoints, outpsd] = batchpsd(output,output, window, overlap, nfft, fs);
 
 %calculate the frf
 frf = crosspsd./inpsd;
+% frf = outpsd./crosspsd;
 
 %calculate the coherence
 coh = mscohere(output,input, window, overlap, nfft, fs);
