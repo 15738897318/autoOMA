@@ -22,7 +22,7 @@ function varargout = plot_mshape(varargin)
 
 % Edit the above text to modify the response to help plot_mshape
 
-% Last Modified by GUIDE v2.5 15-Mar-2017 13:30:02
+% Last Modified by GUIDE v2.5 15-Mar-2017 16:44:04
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -79,10 +79,17 @@ setappdata(0,'maxindex',length(fn))
 plot_axes(handles.plot_left, 1);
 plot_axes(handles.plot_right,1);
 
-
 %create dropdown list
 set(handles.dropdown_left,'String',fn_string);
 set(handles.dropdown_right,'String',fn_string);
+
+%initialize min and max freq for frf or svd plot
+fpoints = varargin{1}.fpoints;
+setappdata(0,'fpoints', fpoints);
+setappdata(0,'fmin', fpoints(1));
+setappdata(0,'fmax', fpoints(end));
+set(handles.fmin, 'String', num2str(fpoints(1), '%.2f'));
+set(handles.fmax, 'String', num2str(fpoints(end), '%.2f'));
 
 % Choose default command line output for plot_mshape
 handles.output = hObject;
@@ -253,18 +260,36 @@ function show_frf_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-function edit1_Callback(hObject, eventdata, handles)
-% hObject    handle to edit1 (see GCBO)
+%finding the index of fmin and fmax in fpoints
+fpoints = getappdata(0,'fpoints');
+[c i_fmin] = min(abs(fpoints - getappdata(0,'fmin')));
+[c i_fmax] = min(abs(fpoints - getappdata(0,'fmax')));
+
+%plotting the frf/sv plot
+spectrum = getappdata(0,'spectrum');
+frf_fig = figure(1);
+figure(frf_fig)
+plot(fpoints(i_fmin : i_fmax),mag2db(abs(spectrum(i_fmin:i_fmax,:))));
+xlabel('Frequency (Hz)')
+ylabel('Amplitude (dB)')
+
+
+function fmin_Callback(hObject, eventdata, handles)
+% hObject    handle to fmin (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hints: get(hObject,'String') returns contents of edit1 as text
-%        str2double(get(hObject,'String')) returns contents of edit1 as a double
+% Hints: get(hObject,'String') returns contents of fmin as text
+%        str2double(get(hObject,'String')) returns contents of fmin as a double
+
+%update the fmin value
+val = str2num(get(hObject,'String'));
+setappdata(0,'fmin',val);
 
 
 % --- Executes during object creation, after setting all properties.
-function edit1_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to edit1 (see GCBO)
+function fmin_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to fmin (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
@@ -276,18 +301,21 @@ end
 
 
 
-function edit2_Callback(hObject, eventdata, handles)
-% hObject    handle to edit2 (see GCBO)
+function fmax_Callback(hObject, eventdata, handles)
+% hObject    handle to fmax (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hints: get(hObject,'String') returns contents of edit2 as text
-%        str2double(get(hObject,'String')) returns contents of edit2 as a double
+% Hints: get(hObject,'String') returns contents of fmax as text
+%        str2double(get(hObject,'String')) returns contents of fmax as a double
 
+%update the fmax value
+val = str2num(get(hObject,'String'));
+setappdata(0,'fmax',val);
 
 % --- Executes during object creation, after setting all properties.
-function edit2_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to edit2 (see GCBO)
+function fmax_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to fmax (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
@@ -296,9 +324,9 @@ function edit2_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
 
 % ----------------helper functions----------------------- %
-
 function plot_axes(handle, index)
 % handle        handle of the plot_axes
 % mshape_grid   index of mode shape
