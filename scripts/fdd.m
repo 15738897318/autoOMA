@@ -1,4 +1,4 @@
-function [fpoints, svalue, svector] = fdd(input,window,overlap,nfft,fs)
+function [fpoints, svalue, svector, psd] = fdd(input,window,overlap,nfft,fs)
 
 % Frequency Domain Decomposition (FDD) algorithm
 % Author: Alkindi R. Dzulqarnain, Master Student at UTwente
@@ -47,3 +47,21 @@ hold on
 plot(fpoints, mag2db(abs(svalue(:,2))));
 plot(fpoints, mag2db(abs(svalue(:,3))));
 toc
+
+
+% -------------------- Helper Functions ------------------- %
+
+function psd = cpsdm(input,window,overlap,nfft,fs)
+%calculate psd matrix
+
+%remove the dc component
+for i=1:size(input,2)
+   input(:,i) = input(:,i) - mean(input(:,i)); 
+end
+
+% Obtain the cpsd matrix
+for i=1:size(input,2)
+  for j=1:size(input,2)
+    psd(i,j,:) = cpsd(input(:,i),input(:,j),window,overlap,nfft,fs);
+  end
+end
