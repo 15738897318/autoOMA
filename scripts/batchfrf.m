@@ -1,4 +1,4 @@
-function [fpoints, frf, coh] = batchfrf(input, output, window, overlap, nfft, fs)
+function result = batchfrf(input, output, window, wintype, overlap, nfft, fs)
 % Calculate FRF matrix of batch of output and input time domain data
 % Author: Alkindi R. Dzulqarnain, Master Student at UTwente
 % Last update: 21/02/2017
@@ -12,6 +12,7 @@ function [fpoints, frf, coh] = batchfrf(input, output, window, overlap, nfft, fs
 % input   : input data, row as time series, column as data channel
 % output  : ouput data, row as time series, column as data channel
 % window  : window (as vector) for welch psd estimation. Example : hanning(128)
+% wintype : window type being used, as string. Example : 'hanning', 'hamming'
 % overlap : overlap between window segments for welch psd estimation
 % nfft    : number of fft point to be used
 % fs      : sampling rate of data
@@ -36,6 +37,18 @@ frf = crosspsd./inpsd;
 
 %calculate the coherence
 coh = mscohere(output,input, window, overlap, nfft, fs);
+
+%create structure to save all of the results
+result = struct('fpoints', fpoints);
+result.frf = frf;
+result.meanfrf = mean(frf,2);
+result.coh = coh;
+result.meancoh = mean(coh,2);
+result.type = 'ema';
+
+%save the psdsetting as well
+result.psdsetting = struct('fsampling', fs, 'window',window, ...
+                    'wintype', wintype, 'overlap', overlap, 'nfft', nfft);
 
 
 
