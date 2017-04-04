@@ -55,7 +55,7 @@ for i=1:length(peaks)
     if strcmp(modaltype,'ema')
         %save coh from auxar and modeshape from frf magnitude
         modepar(i).coh = auxvar(ind_fn);
-        modepar(i).mshape = fdata(ind_fn,:);
+        modepar(i).mshape = fdata(ind_fn,:)';
     else
         %save modeshape from singular vectors
         modepar(i).mshape = auxvar(:,ind_fn,1);
