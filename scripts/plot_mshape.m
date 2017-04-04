@@ -22,7 +22,7 @@ function varargout = plot_mshape(varargin)
 
 % Edit the above text to modify the response to help plot_mshape
 
-% Last Modified by GUIDE v2.5 15-Mar-2017 16:44:04
+% Last Modified by GUIDE v2.5 04-Apr-2017 12:38:01
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -55,13 +55,17 @@ function plot_mshape_OpeningFcn(hObject, eventdata, handles, varargin)
 %store the modal parameter on application data
 for i=1:length(varargin{1}.modepar)
     fn(i) = varargin{1}.modepar(i).fn;
-    mshape(:,:,i) = varargin{1}.modepar(i).regrid;
+    commshape(:,:,i) = varargin{1}.modepar(i).comgrid;
+    realmshape(:,:,i) = varargin{1}.modepar(i).regrid;
+    imagmshape(:,:,i) = varargin{1}.modepar(i).imgrid;
 end
 fn_string = num2str(fn','%.2f Hz');
 
 setappdata(0,'fn_string', fn_string);
 setappdata(0,'fn', fn);
-setappdata(0,'mshape', mshape);
+setappdata(0,'commshape', commshape);
+setappdata(0,'realmshape', realmshape);
+setappdata(0,'imagmshape', imagmshape);
 
 %store the frf or singular values on application data
 if strcmp(varargin{1}.type, 'ema')
@@ -71,15 +75,17 @@ elseif strcmp(varargin{1}.type, 'oma')
 end
 
 %create initial global indexing for plot
+%lef and right plot first fn complex mode shape
 setappdata(0,'index_left',1);
 setappdata(0,'index_right',1);
+setappdata(0,'mtype_left',1);
+setappdata(0,'mtype_right',1);
 setappdata(0,'maxindex',length(fn))
-
 %initial plot
-plot_axes(handles.plot_left, 1);
-plot_axes(handles.plot_right,1);
+plot_axes(handles.plot_left, 1, 1);
+plot_axes(handles.plot_right,1, 1);
 
-%create dropdown list
+%create dropdown list for fn selection
 set(handles.dropdown_left,'String',fn_string);
 set(handles.dropdown_right,'String',fn_string);
 
@@ -124,9 +130,10 @@ function dropdown_left_Callback(hObject, eventdata, handles)
 %update the mode shape plot selection index
 val = get(hObject,'Value');
 setappdata(0,'index_left',val);
+mtype = getappdata(0,'mtype_left');
 
 %plot the mode shape grid
-plot_axes(handles.plot_left, val);
+plot_axes(handles.plot_left, mtype, val);
 
 
 % --- Executes during object creation, after setting all properties.
@@ -156,9 +163,10 @@ function dropdown_right_Callback(hObject, eventdata, handles)
 %update the mode shape plot selection index
 val = get(hObject,'Value');
 setappdata(0,'index_right',val);
+mtype = getappdata(0,'mtype_right');
 
 %plot the mode shape grid
-plot_axes(handles.plot_right, val);
+plot_axes(handles.plot_right, mtype, val);
 
 
 
@@ -182,6 +190,7 @@ function prev_left_Callback(hObject, eventdata, handles)
 
 %get current index value
 index = getappdata(0,'index_left') - 1;
+mtype = getappdata(0,'mtype_left');
 if index <= 0    
     index = 1;
 end
@@ -191,7 +200,7 @@ setappdata(0,'index_left', index);
 
 %update the graph and dropdown
 set(handles.dropdown_left, 'Value', index);
-plot_axes(handles.plot_left, index);
+plot_axes(handles.plot_left, mtype, index);
 
 
 % --- Executes on button press in next_left.
@@ -202,6 +211,7 @@ function next_left_Callback(hObject, eventdata, handles)
 
 %get current index value
 index = getappdata(0,'index_left') + 1;
+mtype = getappdata(0,'mtype_left');
 if index > getappdata(0, 'maxindex')   
     index = getappdata(0, 'maxindex');
 end
@@ -211,7 +221,7 @@ setappdata(0,'index_left', index);
 
 %update the graph and dropdown
 set(handles.dropdown_left, 'Value', index);
-plot_axes(handles.plot_left, index);
+plot_axes(handles.plot_left, mtype, index);
 
 
 % --- Executes on button press in prev_right.
@@ -222,6 +232,7 @@ function prev_right_Callback(hObject, eventdata, handles)
 
 %get current index value
 index = getappdata(0,'index_right') - 1;
+mtype = getappdata(0,'mtype_right');
 if index <= 0    
     index = 1;
 end
@@ -231,7 +242,7 @@ setappdata(0,'index_right', index);
 
 %update the graph and dropdown
 set(handles.dropdown_right, 'Value', index);
-plot_axes(handles.plot_right, index);
+plot_axes(handles.plot_right, mtype, index);
 
 
 % --- Executes on button press in next_right.
@@ -242,6 +253,7 @@ function next_right_Callback(hObject, eventdata, handles)
 
 %get current index value
 index = getappdata(0,'index_right') + 1;
+mtype = getappdata(0,'mtype_right');
 if index > getappdata(0, 'maxindex')   
     index = getappdata(0, 'maxindex');
 end
@@ -251,7 +263,7 @@ setappdata(0,'index_right', index);
 
 %update the graph and dropdown
 set(handles.dropdown_right, 'Value', index);
-plot_axes(handles.plot_right, index);
+plot_axes(handles.plot_right, mtype, index);
 
 
 % --- Executes on button press in show_frf.
@@ -344,10 +356,85 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 
+% --- Executes on selection change in mshape_type_left.
+function mshape_type_left_Callback(hObject, eventdata, handles)
+% hObject    handle to mshape_type_left (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns mshape_type_left contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from mshape_type_left
+mtype = get(hObject,'Value');
+setappdata(0,'mtype_left',mtype);
+index = getappdata(0,'index_left');
+
+%plot the mode shape grid
+plot_axes(handles.plot_left, mtype, index);
+
+
+% --- Executes during object creation, after setting all properties.
+function mshape_type_left_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to mshape_type_left (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on selection change in mshape_type_right.
+function mshape_type_right_Callback(hObject, eventdata, handles)
+% hObject    handle to mshape_type_right (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns mshape_type_right contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from mshape_type_right
+mtype = get(hObject,'Value');
+setappdata(0,'mtype_right',mtype);
+index = getappdata(0,'index_right');
+
+%plot the mode shape grid
+plot_axes(handles.plot_right, mtype, index);
+
+
+% --- Executes during object creation, after setting all properties.
+function mshape_type_right_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to mshape_type_right (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
 % ----------------helper functions----------------------- %
-function plot_axes(handle, index)
+function plot_axes(handle, mtype, index)
 % handle        handle of the plot_axes
-% mshape_grid   index of mode shape
-mshape_grid = getappdata(0, 'mshape');
+% mtype         type of mode shape:
+%               - 1 : complex (complete part)
+%               - 2 : real part
+%               - 3 : imaginary part
+% index         index of mode shape
+
+switch mtype
+    case 1
+        mshape_grid = getappdata(0, 'commshape');
+    case 2
+        mshape_grid = getappdata(0, 'realmshape');
+    case 3
+        mshape_grid = getappdata(0, 'imagmshape');
+    otherwise
+        %should not have happened
+        error('wrong mode shape type')
+end
+
 surf(handle, mshape_grid(:,:,index));
 rotate3d on;
