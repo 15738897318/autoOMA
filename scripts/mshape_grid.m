@@ -2,9 +2,9 @@ function modepar = mshape_grid(modepar, mshape_length, res)
 
 for i=1:length(modepar)
   fprintf('processing mode %d, fn : %0.2f\n',i,modepar(i).fn);
-  modepar(i).comgrid = create_grid(complex2realmode(modepar(i).mshape), mshape_length, res);
-  modepar(i).regrid = create_grid(real(modepar(i).mshape), mshape_length, res);
-  modepar(i).imgrid = create_grid(imag(modepar(i).mshape), mshape_length, res);
+  modepar(i).comgrid = create_grid(complex2realmode(modepar(i).paddedmshape), mshape_length, res);
+  modepar(i).regrid = create_grid(real(modepar(i).paddedmshape), mshape_length, res);
+  modepar(i).imgrid = create_grid(imag(modepar(i).paddedmshape), mshape_length, res);
 end
 
 
@@ -38,7 +38,6 @@ while i <= length(mshape)
   %update counter
   i = i + mshape_length;
   j = j + 1;
-  i
 end
 
 %final grid storage
