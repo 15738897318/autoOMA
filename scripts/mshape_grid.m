@@ -11,7 +11,7 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function grid = create_grid(mshape, mshape_length, res)
 %helper function for mshape_grid to extract each mode shape new grid points
-
+length(mshape)
 %check the sizing
 if rem(length(mshape),mshape_length) ~= 0
   error('mode shape length is incorrect, length is not divisible');
@@ -38,6 +38,7 @@ while i <= length(mshape)
   %update counter
   i = i + mshape_length;
   j = j + 1;
+  i
 end
 
 %final grid storage

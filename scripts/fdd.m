@@ -25,6 +25,7 @@ function result = fdd(input,window, wintype, overlap,nfft, fs, frange)
 % FDD(data, hanning(128), 64, 1024, 128);
 
 % calculate the frequency resolution range
+nfft
 fpoints = linspace(0,fs,nfft);
 fpoints = fpoints(1:(nfft/2+1));
 
@@ -38,6 +39,7 @@ else
 end
 fmin = fpoints(i_fmin);
 fmax = fpoints(i_fmax);
+fpoints = fpoints(i_fmin : i_fmax);
 
 %obtain the cross-psd matrix
 disp('Calculating cross-psd matrix -----');
