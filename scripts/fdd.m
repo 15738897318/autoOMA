@@ -25,7 +25,6 @@ function result = fdd(input,window, wintype, overlap,nfft, fs, frange)
 % FDD(data, hanning(128), 64, 1024, 128);
 
 % calculate the frequency resolution range
-nfft
 fpoints = linspace(0,fs,nfft);
 fpoints = fpoints(1:(nfft/2+1));
 

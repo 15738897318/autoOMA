@@ -7,13 +7,13 @@ for i=1:length(input)
     fs = input(i).fs;
 
     %based on sensor setup
-    node_num = [94,95,96,97,98,99];
-    tempdata(1) = extract_data(input(i).data.node_94, fs, sensaxis);
-    tempdata(2) = extract_data(input(i).data.node_95, fs, sensaxis);
-    tempdata(3) = extract_data(input(i).data.node_96, fs, sensaxis);
-    tempdata(4) = extract_data(input(i).data.node_97, fs, sensaxis);
-    tempdata(5) = extract_data(input(i).data.node_98, fs, sensaxis);
-    tempdata(6) = extract_data(input(i).data.node_99, fs, sensaxis);
+    node_num = [96,94,97,99,95,98];
+    tempdata(1) = extract_data(input(i).data.node_96, fs, sensaxis);
+    tempdata(2) = extract_data(input(i).data.node_94, fs, sensaxis);
+    tempdata(3) = extract_data(input(i).data.node_97, fs, sensaxis);
+    tempdata(4) = extract_data(input(i).data.node_99, fs, sensaxis);
+    tempdata(5) = extract_data(input(i).data.node_95, fs, sensaxis);
+    tempdata(6) = extract_data(input(i).data.node_98, fs, sensaxis);
 
     % for j=1:length(tempdata)
     %     tempdata(j).resvibdata = resample(tempdata(j).vibdata, tempdata(j).tstamp);

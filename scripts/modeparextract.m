@@ -35,15 +35,15 @@ nvalid = 10;
 if (ptype == 2 && strcmp(modaltype,'oma'))
    %smoothing parameter for singular value plot
    filorder = 2;
-   fillength = 2*floor(length(fdata)/4/2)+1;
+   fillength = 2*floor(length(fdata)/2/2)+1;
 
    %apply smoothing
    svalplot = mag2db(abs(fdata));
-   %svalsmooth = sgolayfilt(svalplot(:,1),filorder,fillength)
-    svalsmooth = svalplot(:,1); 
-
+   svalsmooth = sgolayfilt(svalplot(:,1),filorder,fillength);
+   %svalsmooth = svalplot(:,1);
+   
    %find the maximum value
-   [mag, peakloc] = max(svalsmooth)
+   [mag, peakloc] = max(svalsmooth);
 
    modepar(1).fn = fpoints(peakloc);
 
@@ -69,52 +69,28 @@ if (ptype == 2 && strcmp(modaltype,'oma'))
    close all
 
 elseif (ptype == 1 && strcmp(modaltype,'oma'))
-   %smoothing parameter for auto peaks selection
-   filorder = 3;
-   fillength = 33;
-   fildifftreshold = 4;
-
-   %peak minimum treshold compared to noise floor
-   noisefloor = mean(mag2db(abs(fdata(:,4))));
-   ptreshold = 0.4; %percent from noise floor to highest peak mag
-
-   %apply smoothing
-   svalplot = mag2db(abs(fdata));
-   svalsmooth = sgolayfilt(svalplot(:,1),filorder,fillength);
-
    %auto peak selection
-   [peakloc, mag] = peakfinder(svalsmooth,fildifftreshold,[],[],0,0);
+   svalplot = mag2db(abs(fdata));
+   [peakloc, mag] = peakpicker(svalplot(:,1),0.3);
    
-   %select only significant peaks
-    j = 1;
-    for i=1:length(peakloc)
-        %peak tresholding value based on max peak mag & noise floor
-        maxmag = max(mag);
-        peaktreshold = noisefloor + ptreshold*(maxmag-noisefloor);
 
-        if(mag(i) > peaktreshold)
+    for i=1:length(peakloc)
             %save natural frequency
-            modepar(j).fn = fpoints(peakloc(i));
+            modepar(i).fn = fpoints(peakloc(i));
 
             %save peak values in db
-            modepar(j).peakvaldb = mag(i);
+            modepar(i).peakvaldb = mag(i);
 
             %obtain corresponding index of fn
-            peakmarker(j) = peakloc(i);
-            modepar(j).ind_fn = peakloc(i);
-
-            %save the graph data
-            modepar(j).svalsmooth = svalsmooth;
-
-            j = j+1;
-        end
+            peakmarker(i) = peakloc(i);
+            modepar(i).ind_fn = peakloc(i);
     end
 
    %plot the graph comparsion
    subplot(2,1,1), plot(fpoints, svalplot),
    xlim([fpoints(1) fpoints(end)]), xlabel('Frequency (Hz)'),xticks(fpoints(1):20:fpoints(end)) 
    ylabel('Magnitude (db)');
-   subplot(2,1,2), plot(fpoints, svalsmooth,'-o','MarkerIndices',peakmarker,...
+   subplot(2,1,2), plot(fpoints, svalplot(:,1),'-o','MarkerIndices',peakmarker,...
         'MarkerFaceColor','red'),
    xlim([fpoints(1) fpoints(end)]), xlabel('Frequency (Hz)'), xticks(fpoints(1):20:fpoints(end))
    ylabel('Magnitude (db)'); 
@@ -165,10 +141,14 @@ for i=1:length(modepar)
     else
         %save modeshape from singular vectors
         modepar(i).mshape = auxvar(:,modepar(i).ind_fn,1);
-        svectors = auxvar(:,indsvectors,1);
+        if ptype ~= 2
+            svectors = auxvar(:,indsvectors,1);
+        end
     end
-    modepar(i).modalcoh = modalcoherence(modepar(i).mshape, svectors);
-    modepar(i).mac = mac_calc(modepar(i).mshape, svectors);
+    if ptype ~= 2
+        modepar(i).modalcoh = modalcoherence(modepar(i).mshape, svectors);
+        modepar(i).mac = mac_calc(modepar(i).mshape, svectors);
+    end
 end
 
 %sort the structure

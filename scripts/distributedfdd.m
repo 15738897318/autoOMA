@@ -16,11 +16,11 @@ end
 
 %Auto select the singular values
 for i=1:length(sdata)
-    newmodepar(i) = modeparextract(sdata(i).svalue, sdata(i).fpoints, 'oma', sdata(i).svector, 2) 
+    newmodepar(i) = modeparextract(sdata(i).svalue, sdata(i).fpoints, 'oma', sdata(i).svector, 2);
 end
 
 for i=1:length(newmodepar)
-    newmodepar(i).comparemac = MAC(modepar(i).mshape, newmodepar(i).mshape)
+    newmodepar(i).comparemac = MAC(modepar(i).mshape, newmodepar(i).mshape);
 end
 
 %combine the data
