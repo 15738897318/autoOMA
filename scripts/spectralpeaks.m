@@ -15,7 +15,7 @@ for i=1:size(data,2)
     [spectra, f] = pwelch(data(:,i) - mean(data(:,i)), hanning(winsize),overlap, winsize, fs);
     
     %convert to db magnitude
-    spectra = mag2db(abs(spectra(:,1)));
+    spectra = mag2db(abs(spectra));
     
     %find the peaks
     [loc,mag] = peakpicker(spectra,0.4,3,33,1);

@@ -33,8 +33,6 @@ for i = 1 : length(sensor)
     end
 end
 
-assignin('base', 'pinterval', pinterval)
-
 %merge the intervals
 i = 1;
 while isempty(pinterval) == false
@@ -45,7 +43,7 @@ while isempty(pinterval) == false
     for kk = i : length(pinterval);
         if pinterval(kk).start < candidate.start
             if pinterval(kk).end < candidate.start
-                fprintf('new area before,nstart %d, nend %d, oldstart %d, oldend %d \n',pinterval(kk).start, pinterval(kk).end, candidate.start, candidate.end);
+                %fprintf('new area before,nstart %d, nend %d, oldstart %d, oldend %d \n',pinterval(kk).start, pinterval(kk).end, candidate.start, candidate.end);
                 %new area found
                 newarea(areacount).start = pinterval(kk).start;
                 newarea(areacount).end = pinterval(kk).end;
@@ -59,7 +57,7 @@ while isempty(pinterval) == false
                 candidate.end = pinterval(kk).end;
             end
         elseif pinterval(kk).start > candidate.end
-            fprintf('new area after,nstart %d, nend %d, oldstart %d, oldend %d\n',pinterval(kk).start, pinterval(kk).end, candidate.start, candidate.end);
+            %fprintf('new area after,nstart %d, nend %d, oldstart %d, oldend %d\n',pinterval(kk).start, pinterval(kk).end, candidate.start, candidate.end);
             % new area found
             newarea(areacount).start = pinterval(kk).start;
             newarea(areacount).end = pinterval(kk).end;
@@ -80,6 +78,6 @@ while isempty(pinterval) == false
     parea(i).fend = fpoints(candidate.end);
     i = i + 1;
 
-    fprintf('iterate again, new length %d\n', length(pinterval));
-    pause
+    %fprintf('iterate again, new length %d\n', length(pinterval));
+    %pause
 end
