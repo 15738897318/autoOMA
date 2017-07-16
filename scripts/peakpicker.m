@@ -1,7 +1,7 @@
 function [peakloc, peakmag] = peakpicker(data,threshold, lenorder, lenfilter, plotgraph)
 
 %savitzky golay filter parameters;
-if nargin == 5
+if nargin == 4
     plotgraph = 0;
 elseif nargin == 2
     lenorder = 3;

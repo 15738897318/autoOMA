@@ -1,5 +1,10 @@
-function specpeaks = spectralpeaks(data, winsplit, overlap, fs, nodeid)
+function sensor = spectralpeaks(data, winsplit, overlap, fs, nodeid)
 
+if nargin == 4
+    nodeid = [94,95,96,97,98,99];
+end
+
+%iterate through sensor channel
 for i=1:size(data,2)
     %calculate the power spectral density
     len = length(data(:,i));
@@ -13,13 +18,13 @@ for i=1:size(data,2)
     spectra = mag2db(abs(spectra(:,1)));
     
     %find the peaks
-    [loc,mag] = peakpicker(spectra,0.4,3,17,1);
+    [loc,mag] = peakpicker(spectra,0.4,3,33,1);
 
     %save the result in structure
-    specpeaks(i).nodeid = nodeid(i);
-    specpeaks(i).loc = loc;
-    specpeaks(i).floc = f(specpeaks(i).loc); %peak location in frequency
-    specpeaks(i).mag = mag; 
+    sensor(i).nodeid = nodeid(i);
+    sensor(i).ploc = loc;
+    sensor(i).pfloc = f(sensor(i).ploc); %peak location in frequency
+    sensor(i).pmag = mag; 
     
     pause
     close all
