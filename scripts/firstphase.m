@@ -1,9 +1,9 @@
-function result = firstphase(data,nwindow,noverlap,fs)
+function [npdata, modepar] = firstphase(data,nwindow,noverlap,fs)
 
 %PARAMETER for peak area selection
 peakband = 16; %in Hz
 nwin = 4; %number of window used for auto psd
-threshold = 0.4;
+threshold = 0.3;
 
 %obtain the fdd result
 winsize = length(data.resvibdata)/nwindow;
@@ -14,49 +14,51 @@ fddres = fdd(data.resvibdata, hanning(winsize), 'hanning',winsize*noverlap, wins
 parea = peakarea(data.resvibdata(1:winsize*nwin,:), nwin, noverlap*nwin, 500, peakband);
 assignin('base', 'parea', parea)
 
+%obtain the maximum peak value and noise floor for thresholding
+nfloor = [];
+peakdata = [];
+for i=1:length(parea)
+    sval1 = mag2db(abs(fddres.svalue(parea(i).start:parea(i).end,1)));
+    sval5 = mag2db(abs(fddres.svalue(parea(i).start:parea(i).end,5)));
+
+    nfloor = [nfloor; sval5];
+    peakdata = [peakdata; sval1];
+end
+threshdata.nfloor = mean(nfloor);
+threshdata.maxpeak = max(peakdata); %global maximum value in singular value
+threshdata.value = threshdata.nfloor + threshold*(threshdata.maxpeak - threshdata.nfloor);
+
+
 %apply modepar extraction for each peak area
 modepar = [];
-j = 0;
-noisefloor = 0;
+npdata = 0;;
 for i=1:length(parea)
+    %obtain data for each peak area
     sval = fddres.svalue(parea(i).start:parea(i).end,:);
     fpdata = fpoints(parea(i).start:parea(i).end);
     svec = fddres.svector(:,parea(i).start:parea(i).end,1);
     indexing = parea(i).start:parea(i).end;
+
+    %count the number of data needed for all area
+    npdata = npdata + parea(i).end - parea(i).start;
     
     %auto select the peaks
-    [nfloor, modalresult] =  automodal(sval, fpdata, svec, indexing);
+    modalresult =  automodal(sval, fpdata, svec, indexing, threshdata);
 
+    %obtain the noise floor for thresholding
     if isempty(modalresult) == false
         modepar = [modepar, modalresult];
-        noisefloor = noisefloor + nfloor;
-        j = j+1;
     end
 end
 
-%obtain the noisefloor
-noisefloor = noisefloor/j;
-
-%create thresholding value
-maxpeak = modepar(1).peakvaldb;
-for i=2:length(modepar)
-    if modepar(i).peakvaldb > maxpeak;
-        maxpeak = modepar(i).peakvaldb
-    end
-end
-pthreshold = noisefloor + threshold * (maxpeak - noisefloor);
-
-%apply threshold filtering
+%combine the peak information for plotting
 k = 1;
 for i=1:length(modepar)
-    if modepar(i).peakvaldb >= pthreshold;
-        result(k) = modepar(i);
-        ploc(k) = modepar(i).ind_fn;
-        pmag(k) = modepar(i).peakvaldb;
-
-        k = k+1;
-    end
+    ploc(k) = modepar(i).ind_fn; 
+    pmag(k) = modepar(i).peakvaldb;
+    k = k+1;
 end
+
 
 %plot the range area
 svalplot = mag2db(abs(fddres.svalue(:,1)));
@@ -81,14 +83,11 @@ close all
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %-------------------auto modal analysis function
-function [nfloor, modepar] = automodal(sval, fpoints, svector, indexing)
+function modepar = automodal(sval, fpoints, svector, indexing, threshdata)
 
 %auto peak selection
 svalplot = mag2db(abs(sval));
-[smoothplot, peakloc, mag] = peakselect(svalplot(:,1));
-
-%obtain noise floor for later peak filtering
-nfloor = mean(svalplot(:,5));
+[smoothplot, peakloc, mag] = peakselect(svalplot(:,1),threshdata);
 
 modepar = [];
 for i=1:length(peakloc)
@@ -116,7 +115,10 @@ if isempty(peakloc) == false
     pause;
     close all
 else
+    subplot(2,1,1)
     plot(fpoints, svalplot(:,1)),
+    subplot(2,1,2)
+    plot(smoothplot),
     pause;
     close all
 end
@@ -124,17 +126,17 @@ end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %-----------------modal peak selection function
-function [smoothplot, peakloc, peakmag] = peakselect(data)
+function [smoothplot, peakloc, peakmag] = peakselect(data, threshdata)
 
 %savitzky golay filter parameters;
 lenorder = 3;
-lenfilter = 17;
+lenfilter = 13;
 
 %length of data
 datalen = length(data);
 
 %threshold based on how dominant the true peak
-pdom = (max(data)-min(data))/20;
+pdom = (threshdata.maxpeak - threshdata.nfloor)/20;
 
 %apply savitzky golay filtering
 data = sgolayfilt(data, lenorder, lenfilter);
@@ -154,22 +156,28 @@ for i = 2:(datalen - 1)
     end
 end
 
+minmaxind
+minmaxmag
+
+peakloc = [];
+peakmag = [];
+
 %start peak finding process
 minmaxlen = length(minmaxind);
 if minmaxlen == 1 
     disp('only 1 peak found');
-    peakloc = minmaxind;
-    peakmag = minmaxmag;
-elseif minmaxlen == 2
-    [peakmag, loc] = max(minmaxmag);
-    peakloc = minmaxind(loc);    
+    temploc = minmaxind;
+    tempmag = minmaxmag;
+elseif minmaxlen < 4
+    [tempmag, loc] = max(minmaxmag);
+    temploc = minmaxind(loc);    
 else
     %the algorithm works by assuming the first data is maxima
     %check if the first index is maxima
     if minmaxmag(1) >= minmaxmag(2)
-        i = 0;
+        i = 0
     else
-        i = 1;
+        i = 1
     end
 
     %set initial values
@@ -178,6 +186,8 @@ else
     lvalley = min(minmaxmag);
     lvalleyloc = 1;
     foundpeak = false;
+    temploc = [];
+    tempmag = [];
 
     while i < minmaxlen
         i = i+1;
@@ -188,19 +198,24 @@ else
             foundpeak = false;
         end
 
+        %fprintf('current max %0.2f, new data %0.2f, last valley %0.2f\n',tempmaximag, minmaxmag(i),lvalley);
+        %fprintf('pdom %0.2f\n',pdom);
         %found new maxima, check if larger than previous maxima
         %and dominant enough compared to left valley, based on threshold
         if (minmaxmag(i) > tempmaximag) && (minmaxmag(i) > lvalley + pdom)
+            fprintf('new max found\n');
             tempmaximag = minmaxmag(i);
             tempmaxiloc = minmaxind(i);
         end
 
-        %move to valley;
-        i = i+1;
-        if i == minmaxlen-1
+        if i == minmaxlen
             break; %avoid array out of index
         end
 
+        %move to valley;
+        i = i+1;
+
+        %fprintf('current max %0.2f, new data %0.2f\n',tempmaximag, minmaxmag(i));
         if tempmaximag > minmaxmag(i) + pdom
             %peak obtained
             foundpeak = true;
@@ -216,12 +231,19 @@ else
         end
 
     end
-
-    %save the results
-    peakloc = temploc;
-    peakmag = tempmag;
 end
 
+%apply threshold filtering
+k = 1;
+for i=1:length(temploc)
+    if tempmag(i) > threshdata.value
+        peakloc(k) = temploc(i);
+        peakmag(k) = tempmag(i);
+        k = k+1;
+    end
+end
+
+%save the smoothed plot
 smoothplot = data;
 
 

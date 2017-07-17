@@ -35,7 +35,7 @@ nvalid = 10;
 if (ptype == 2 && strcmp(modaltype,'oma'))
    %smoothing parameter for singular value plot
    filorder = 2;
-   fillength = 2*floor(length(fdata)/2/2)+1;
+   fillength = 2*floor(length(fdata)/3/2)+1;
 
    %apply smoothing
    svalplot = mag2db(abs(fdata));
