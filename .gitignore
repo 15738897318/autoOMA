@@ -38,3 +38,7 @@ result_tbeam\.mat
 result_woodbridge\.mat
 
 *.mat
+
+testsignal\.csv
+
+*.csv
