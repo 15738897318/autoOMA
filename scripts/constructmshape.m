@@ -1,8 +1,5 @@
 function modepar = constructmshape(modepar, gridres, type)
 
-ax = 210
-az = 55
-
 if type==1 %pit bridge
     for j=1:length(modepar) 
         modepar(j).paddedmshape = [0; modepar(j).mshape(3); modepar(j).mshape(6); 0; ...
@@ -12,7 +9,9 @@ if type==1 %pit bridge
 
 
     len = 4;
-    bridgeid = 'pitbridge';
+    bridgeid = 'pitbridge';  
+    ax = 210
+    az = 55
 elseif type==2 %steel bridge
     for j=1:length(modepar)
         modepar(j).paddedmshape = [0; modepar(j).mshape(1:3); 0; ...
@@ -21,6 +20,8 @@ elseif type==2 %steel bridge
 
     len = 5;
     bridgeid = 'steelbridge';
+    ax = 230
+    az = 45
 else %wood bridge
     for j=1:length(modepar)
         modepar(j).paddedmshape = [0; modepar(j).mshape(1:3); 0; ...
@@ -39,7 +40,10 @@ figure,
 for i=1:length(modepar)
     %plot the modeshape
     surf(modepar(i).imgrid)
-    set(gca, 'visible', 'off') ;
+    grid off
+    axis off
+    ttext = sprintf('Mode %d : %0.3f Hz',i,modepar(i).fn);
+    title(ttext);
     view(ax,az)
 
     %save the plot as files

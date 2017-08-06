@@ -1,9 +1,9 @@
-function [npdata, modepar] = firstphase(data,nwindow,noverlap,fs)
+function [info, modepar] = firstphase(data,nwindow,noverlap,fs)
 
 %PARAMETER for peak area selection
 peakband = 16; %in Hz
 nwin = 4; %number of window used for auto psd
-threshold = 0.3;
+threshold = 0.35;
 
 %obtain the fdd result
 winsize = length(data.resvibdata)/nwindow;
@@ -31,7 +31,8 @@ threshdata.value = threshdata.nfloor + threshold*(threshdata.maxpeak - threshdat
 
 %apply modepar extraction for each peak area
 modepar = [];
-npdata = 0;;
+npdata = 0;
+countarea = 0;
 for i=1:length(parea)
     %obtain data for each peak area
     sval = fddres.svalue(parea(i).start:parea(i).end,:);
@@ -40,7 +41,8 @@ for i=1:length(parea)
     indexing = parea(i).start:parea(i).end;
 
     %count the number of data needed for all area
-    npdata = npdata + parea(i).end - parea(i).start;
+    npdata = npdata + parea(i).end - parea(i).start+1;
+    countarea = countarea+1;
     
     %auto select the peaks
     modalresult =  automodal(sval, fpdata, svec, indexing, threshdata);
@@ -51,10 +53,14 @@ for i=1:length(parea)
     end
 end
 
+info.npdata = npdata;
+info.countarea = countarea;
+info.parea = parea;
+
 %combine the peak information for plotting
 k = 1;
 for i=1:length(modepar)
-    ploc(k) = modepar(i).ind_fn; 
+    ploc(k) = modepar(i).fn; 
     pmag(k) = modepar(i).peakvaldb;
     k = k+1;
 end
@@ -62,19 +68,33 @@ end
 
 %plot the range area
 svalplot = mag2db(abs(fddres.svalue(:,1)));
-plot(1:length(svalplot),svalplot,'linewidth',1);
+length(svalplot)
+plot(fpoints(1:length(svalplot)),svalplot,'linewidth',1);
+xlim([min(fpoints(1:length(svalplot))) max(fpoints(1:length(svalplot)))]);
+xlabel('Frequency (Hz)');
+ylabel('First Singular Values Magnitude (dB)');
+hold on
 
 %color the peak rangearea
 for i=1:length(parea)
     hold on
-    plot(parea(i).start:parea(i).end, ...
+    plot(fpoints(parea(i).start:parea(i).end), ...
         svalplot(parea(i).start:parea(i).end), ...
         'Color',[0.9290    0.6940    0.1250], 'linewidth', 1);
+    plot(ploc(1),pmag(1),'*','MarkerEdgeColor','black', 'MarkerSize',4, 'linewidth', 2)
 end
 
-%mark the selected peaks
-plot(ploc,pmag,'*','MarkerEdgeColor',[0.8500    0.3250    0.0980], 'MarkerSize',10, 'linewidth', 2)
 hold on
+%mark the selected peaks
+plot(ploc,pmag,'*','MarkerEdgeColor','black', 'MarkerSize',4, 'linewidth', 2)
+
+legend('Discarded Frequency Points','Combined Peak Area','Peak Location')
+
+tempstring = '\leftarrow ';
+for i=1:length(modepar)
+    txt = strcat(tempstring,num2str(ploc(i),'%0.3f Hz'));
+    text(ploc(i),pmag(i),txt)
+end
 
 pause
 close all

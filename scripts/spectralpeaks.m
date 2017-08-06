@@ -25,6 +25,7 @@ for i=1:size(data,2)
     sensor(i).ploc = loc;
     sensor(i).pfloc = f(sensor(i).ploc); %peak location in frequency
     sensor(i).pmag = mag; 
+    sensor(i).spectra = spectra;
     
     pause
     close all
