@@ -1,8 +1,7 @@
 function result = fdd(input,window, wintype, overlap,nfft, fs, frange)
 
 % Frequency Domain Decomposition (FDD) algorithm
-% Author: Alkindi R. Dzulqarnain, Master Student at UTwente
-% Last update: 23/01/2017
+% Author: Alkindi R. Dzulqarnain
 % 
 % Function Parameters
 % input   : input time domain data (matlab format), row as time series, column as data channel

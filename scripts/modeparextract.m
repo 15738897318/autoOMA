@@ -107,7 +107,7 @@ else
     set(dcm_obj,'DisplayStyle','datatip',...
     'SnapToDataVertex','on','Enable','on')
 
-    disp('Select the peaks, and press enter if finished');
+    disp('Select the peaks (alt + left mouse click), and press enter when finished');
     pause
 
     %obtain the selected peak information
@@ -145,36 +145,8 @@ for i=1:length(modepar)
             svectors = auxvar(:,indsvectors,1);
         end
     end
-    if ptype ~= 2
-        modepar(i).modalcoh = modalcoherence(modepar(i).mshape, svectors);
-        modepar(i).mac = mac_calc(modepar(i).mshape, svectors);
-    end
 end
 
-%sort the structure
+%sort the structure based on increasing natural frequencies
 [~,isorted] = sort([modepar.fn]);
 modepar = modepar(isorted);
-
-
-%%%%%%%%%%% Helper Function %%%%%%%%%%%%%%
-function modalcoh = modalcoherence(mshape, svectors)
-% mshape and svector should be arranged as column vector
-
-modalcoh = 0;
-for i=1:size(svectors,2)
-    modalcoh = modalcoh + abs(svectors(:,i)'*mshape);
-end
-
-modalcoh = modalcoh/size(svectors,2);
-
-
-function macval=mac_calc(mshape,svectors)
-
-macval = 0;
-for i=1:size(svectors,2)
-    tempval = (abs(svectors(:,i)'*mshape)).^2;
-    sum1 = sum((svectors(:,i)'*svectors(:,i)),2);
-    sum2 = sum((mshape'*mshape),2);
-    macval = macval + tempval/sum1/sum2;
-end
-macval = macval/size(svectors,2);

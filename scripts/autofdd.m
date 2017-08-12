@@ -1,4 +1,16 @@
-function result = autofdd(data,nwindow,noverlap,fs,auto,limit)
+function result = autofdd(data,nwindow,noverlap,fs,auto)
+% Automatically or manually batch process set of vibration signals into 
+% modal parameters (natural frequencies & mode shape) using FDD algorithm
+%
+% Parameter
+% - data     : vibration signal data
+% - nwindow  : number of windows for PSD estimation
+% - noverlap : number of samples overlap between window for PSD estimation
+% - fs       : sampling rate used in signal
+% - auto     : pick the peaks in singular value plot manually (0) or automatically (1)
+% 
+% Output
+% - result : structure contains the process result (singular value, vectors, and modal parameters)
 
 %obtain th fdd results
 for i=1:length(data)

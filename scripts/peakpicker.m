@@ -1,4 +1,21 @@
 function [peakloc, peakmag] = peakpicker(data,threshold, lenorder, lenfilter, plotgraph)
+% function to find peaks automatically in a plot
+%
+% Parameter
+% - data       : plot data
+% - threshold  : how dominant the height of a data to be considered as a peak
+%                from its surrounding valley
+% - lenorder   : the order of savitzky golay filter used for smoothing (3 by default)
+% - lenfilter  : the length savitzky golay filter used for smoothin (17 samples by default)
+% - plotfilter : whether to show the plot and result or not (1 if plot, 0 otherwise)
+%
+% Output
+% - peakloc     : peak locations
+% - peakmag     : peak magnitudes
+%
+% The peak picking algorithm is based on peakfinder function by
+% Nathanael C. Yoder 2015 (nyoder@gmail.com)
+% https://nl.mathworks.com/matlabcentral/fileexchange/25500-peakfinder-x0--sel--thresh--extrema--includeendpoints--interpolate-?requestedDomain=www.mathworks.com
 
 %savitzky golay filter parameters;
 if nargin == 4
