@@ -1,4 +1,4 @@
-# oma_matlab
+# autoOMA
 Repository for Automatic Structural Operational Modal Analysis (Matlab Code).
 The OMA algorithm used in this repo is Frequency Domain Decomposition [1]. The user can specify whether the peaks in singular value are chosen automatically or manually. Auto peak picking algorithm is based on Nathanale Yoder's work [2].
 
